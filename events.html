@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events — EventTix</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    /* ── BODY / BACKGROUND ── */
+    body {
+      background-image: url('123.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* ── APP SHELL ── */
+    .dash-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── LEFT SIDEBAR ── */
+    .dash-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: rgba(255,20,100,0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255,255,255,0.6);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0 24px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    /* Logo */
+    .sidebar-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    .sidebar-logo .logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 6px 20px rgba(167,139,250,0.4);
+    }
+    .sidebar-logo .logo-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-align: center;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+    .sidebar-logo .logo-name span { color: #C80965; }
+
+    /* Nav items */
+    .sidebar-nav {
+      list-style: none;
+      margin: 0; padding: 0 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .sidebar-nav a:hover {
+      background: rgba(167,139,250,0.12);
+      color: #7c3aed;
+    }
+    .sidebar-nav a.active {
+      background: linear-gradient(135deg, rgba(167,139,250,0.25), rgba(236,72,153,0.15));
+      color: #7c3aed;
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 #7c3aed;
+    }
+    .sidebar-nav .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+
+    /* Sidebar dropdown */
+    .nav-dropdown { position: relative; }
+    .nav-dropdown-toggle {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      background: none;
+      border: none;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: left;
+    }
+    .nav-dropdown-toggle:hover { background: rgba(167,139,250,0.12); color: #7c3aed; }
+    .nav-dropdown-toggle.open  { background: rgba(167,139,250,0.12); color: #7c3aed; }
+    .nav-dropdown-arrow {
+      margin-left: auto;
+      font-size: 11px;
+      transition: transform 0.3s;
+      color: #9ca3af;
+    }
+    .nav-dropdown-toggle.open .nav-dropdown-arrow { transform: rotate(180deg); }
+    .nav-submenu {
+      list-style: none;
+      margin: 2px 0 4px;
+      padding: 0 0 0 20px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s ease;
+    }
+    .nav-submenu.open { max-height: 320px; }
+    .nav-submenu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-submenu a:hover { background: rgba(167,139,250,0.1); color: #7c3aed; }
+    .nav-submenu .sub-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #a78bfa;
+      flex-shrink: 0;
+    }
+
+    /* Logout */
+    .sidebar-logout {
+      padding: 0 12px;
+      margin-top: auto;
+    }
+    .sidebar-logout button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ef4444;
+      background: rgba(239,68,68,0.08);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .sidebar-logout button:hover { background: rgba(239,68,68,0.15); }
+
+    /* ── MAIN CONTENT ── */
+    .dash-main {
+      margin-left: 200px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 28px;
+      background: rgba(255,20,100,0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-search {
+      flex: 1;
+      max-width: 320px;
+      position: relative;
+    }
+    .topbar-search input {
+      width: 100%;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 20px;
+      padding: 8px 16px 8px 36px;
+      font-size: 13.5px;
+      color: #374151;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .topbar-search input::placeholder { color: #ffffff; }
+    .topbar-search input:focus {
+      background: rgba(255,255,255,0.85);
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+    }
+    .topbar-search .search-icon {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .topbar-notif {
+      position: relative;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 10px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .topbar-notif:hover { background: rgba(255,255,255,0.85); }
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 7px; height: 7px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 1.5px solid white;
+    }
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .topbar-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(167,139,250,0.35);
+    }
+    .topbar-username {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* Mobile toggle */
+    .mob-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    /* ── PAGE BODY ── */
+    .dash-body {
+      padding: clamp(12px, 3vw, 28px);
+      flex: 1;
+    }
+
+    /* Page heading */
+    .dash-welcome {
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .dash-welcome span { color: #C8095C; }
+    .page-sub {
+      font-size: clamp(12px, 1.3vw, 13.5px);
+      color: rgba(255,255,255,0.7);
+      margin-bottom: clamp(14px, 2vw, 24px);
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      gap: clamp(8px, 1.5vw, 12px);
+      flex-wrap: wrap;
+      margin-bottom: clamp(14px, 2vw, 24px);
+    }
+    .search-input {
+      flex: 1;
+      min-width: clamp(160px, 30vw, 220px);
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 20px;
+      padding: 9px 18px;
+      font-size: clamp(12px, 1.3vw, 13.5px);
+      color: #374151;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .search-input::placeholder { color: #6b7280; }
+    .search-input:focus {
+      background: rgba(255,255,255,0.85);
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+    }
+    .filter-select {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 20px;
+      padding: 9px 18px;
+      font-size: clamp(12px, 1.3vw, 13.5px);
+      color: #374151;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-select:focus {
+      background: rgba(255,255,255,0.85);
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+    }
+
+    /* ── EVENTS GRID — auto wrap ── */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: clamp(12px, 2vw, 20px);
+    }
+
+    /* Footer */
+    .dash-footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #9ca3af;
+      padding-bottom: 20px;
+    }
+    .dash-footer strong { color: #7c3aed; }
+
+    /* ── EVENT CARDS ── */
+    .event-card {
+      background: rgba(255,20,100,0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+    }
+    .event-card-banner {
+      height: 110px;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      padding: 14px 16px;
+    }
+
+    .event-badge {
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .event-card-body {
+      padding: 16px 18px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .event-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+    .event-meta {
+      font-size: 12.5px;
+      color: #ffffff;
+    }
+    .event-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 12px;
+    }
+    .event-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #a78bfa;
+    }
+    .btn-book {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .btn-book:hover { opacity: 0.88; transform: translateY(-1px); }
+    .event-card.hidden { display: none; }
+
+    /* ── RESPONSIVE — only sidebar needs breakpoint ── */
+    @media (max-width: 1024px) {
+      .dash-sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .dash-sidebar.open { transform: translateX(0); }
+      .dash-main { margin-left: 0; }
+      .mob-toggle { display: block; }
+    }
+    @media (max-width: 480px) {
+      .topbar-username { display: none; }
+      .topbar-search { max-width: 140px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="dash-shell">
+
+  <!-- ══════════════════════════════════════
+       LEFT SIDEBAR
+  ══════════════════════════════════════ -->
+  <aside class="dash-sidebar" id="dashSidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎟</div>
+      <div class="logo-name">Event<span>Tix</span></div>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li>
+        <a href="dashboard.html">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+      </li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle open" id="eventsDropdownBtn">
+          <span class="nav-icon">🎪</span>
+          Events
+          <span class="nav-dropdown-arrow">▼</span>
+        </button>
+        <ul class="nav-submenu open" id="eventsSubmenu">
+          <li><a href="events.html" class="active"><span class="sub-dot"></span> All Events</a></li>
+          <li><a href="events.html?cat=Music"><span class="sub-dot"></span> Music</a></li>
+          <li><a href="events.html?cat=Technology"><span class="sub-dot"></span> Technology</a></li>
+          <li><a href="events.html?cat=Sports"><span class="sub-dot"></span> Sports</a></li>
+          <li><a href="events.html?cat=Food+%26+Drink"><span class="sub-dot"></span> Food &amp; Drink</a></li>
+          <li><a href="events.html?cat=Arts+%26+Culture"><span class="sub-dot"></span> Arts &amp; Culture</a></li>
+          <li><a href="events.html?cat=Entertainment"><span class="sub-dot"></span> Entertainment</a></li>
+          <li><a href="events.html?cat=Gaming"><span class="sub-dot"></span> Gaming</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="tickets.html">
+          <span class="nav-icon">🎫</span> My Tickets
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-logout">
+      <button data-logout>
+        <span>➜]</span> Logout
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════ -->
+  <div class="dash-main">
+
+    <!-- TOP BAR -->
+    <div class="dash-topbar">
+      <button class="mob-toggle" id="mobToggle">☰</button>
+
+      <div class="topbar-search" style="position:relative">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="search events…" autocomplete="off" />
+        <div id="searchDropdown" style="
+          display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;
+          background:rgba(30,10,40,0.97);backdrop-filter:blur(20px);
+          border:1px solid rgba(255,255,255,0.2);border-radius:14px;overflow:hidden;
+          box-shadow:0 12px 40px rgba(0,0,0,0.4);z-index:999;max-height:320px;overflow-y:auto;
+        "></div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-notif" id="notifBtn" style="position:relative;cursor:pointer">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+          <div id="notifDropdown" style="
+            display:none;position:absolute;top:calc(100% + 10px);right:0;width:320px;
+            background:rgba(30,10,40,0.97);backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,0.2);border-radius:16px;
+            box-shadow:0 16px 48px rgba(0,0,0,0.5);z-index:9999;overflow:hidden;
+          ">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08)">
+              <span style="font-size:14px;font-weight:700;color:#fff">🔔 Notifications</span>
+              <button id="markAllRead" style="font-size:11px;color:#a78bfa;background:none;border:none;cursor:pointer;font-family:inherit">Mark all read</button>
+            </div>
+            <div id="notifList" style="max-height:280px;overflow-y:auto"></div>
+            <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.08);text-align:center">
+              <a href="tickets.html" style="font-size:12px;color:#a78bfa;text-decoration:none">View all activity →</a>
+            </div>
+          </div>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">A</div>
+          <span class="topbar-username" id="navUsername">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE BODY -->
+    <div class="dash-body">
+
+      <!-- Page heading -->
+      <div class="dash-welcome">Browse <span>Events</span></div>
+      <p class="page-sub">Discover and book tickets for upcoming events.</p>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <input
+          type="text"
+          id="eventSearch"
+          class="search-input"
+          placeholder="🔍  Search by name, location, or category…"
+        />
+        <select id="categoryFilter" class="filter-select">
+          <option value="">All Categories</option>
+          <option value="Music">🎵 Music</option>
+          <option value="Technology">💻 Technology</option>
+          <option value="Food &amp; Drink">🍜 Food &amp; Drink</option>
+          <option value="Arts &amp; Culture">🎨 Arts &amp; Culture</option>
+          <option value="Sports">⚽ Sports</option>
+          <option value="Entertainment">🎤 Entertainment</option>
+          <option value="Gaming">🎮 Gaming</option>
+        </select>
+      </div>
+
+      <!-- EVENTS GRID -->
+      <div class="events-grid" id="eventsGrid">
+        <!-- Cards rendered by script.js -->
+      </div>
+
+      <!-- Footer -->
+      <div class="dash-footer">
+        <strong>EventTix</strong> — Online Event Ticketing System &nbsp;·&nbsp;
+        NURSYAZA AMIRA BINTI AHMAD GHAZALI &nbsp;·&nbsp; IMS566 Advanced Web Design &nbsp;·&nbsp; 2026
+      </div>
+
+    </div><!-- /dash-body -->
+  </div><!-- /dash-main -->
+</div><!-- /dash-shell -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+<style>
+  .event-card.hidden { display: none !important; }
+</style>
+<script>
+  // ── FILTER BY CATEGORY (sidebar) ──
+  function filterCategory(cat) {
+    document.getElementById('categoryFilter').value = cat;
+    applyFilters();
+  }
+
+  // ── FILTER LOGIC ──
+  function applyFilters() {
+    const search = document.getElementById('eventSearch').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    document.querySelectorAll('.event-card').forEach(card => {
+      const name     = (card.dataset.name     || '').toLowerCase();
+      const location = (card.dataset.location || '').toLowerCase();
+      const cat      = (card.dataset.category || '');
+      const matchSearch   = !search   || name.includes(search) || location.includes(search) || cat.toLowerCase().includes(search);
+      const matchCategory = !category || cat === category;
+      card.classList.toggle('hidden', !(matchSearch && matchCategory));
+    });
+  }
+  document.getElementById('eventSearch').addEventListener('input', applyFilters);
+  document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+
+  // ── BOOK TICKET ──
+  function bookTicket(name, price) {
+    const tickets = JSON.parse(localStorage.getItem('ets_tickets') || '[]');
+    tickets.push({ name, price, status: 'Confirmed', date: new Date().toISOString() });
+    localStorage.setItem('ets_tickets', JSON.stringify(tickets));
+    alert('✅ Ticket booked for: ' + name);
+  }
+
+  // Mobile sidebar toggle
+  document.getElementById('mobToggle').addEventListener('click', () => {
+    document.getElementById('dashSidebar').classList.toggle('open');
+  });
+
+
+  // ── READ ?cat= URL PARAM ON LOAD ──
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('cat');
+    if (cat) {
+      const sel = document.getElementById('categoryFilter');
+      if (sel) { sel.value = cat; applyFilters(); }
+    }
+  })();
+
+  // Events dropdown toggle
+  (function() {
+    const btn     = document.getElementById('eventsDropdownBtn');
+    const submenu = document.getElementById('eventsSubmenu');
+    if (!btn || !submenu) return;
+    btn.addEventListener('click', function() {
+      btn.classList.toggle('open');
+      submenu.classList.toggle('open');
+    });
+  })();
+
+  // ── TOPBAR SEARCH ──
+  (function() {
+    const SEARCH_EVENTS = [
+      { name:'Neon Horizon Music Festival', date:'Aug 15, 2026', cat:'Music',          emoji:'🎵', page:'events.html' },
+      { name:'Tech Summit 2026',            date:'Sep 3, 2026',  cat:'Technology',     emoji:'💻', page:'events.html' },
+      { name:'International Food Expo',     date:'Aug 28, 2026', cat:'Food & Drink',   emoji:'🍜', page:'events.html' },
+      { name:'National Art Exhibition',     date:'Oct 10, 2026', cat:'Arts & Culture', emoji:'🎨', page:'events.html' },
+      { name:'Champions League Final',      date:'Nov 22, 2026', cat:'Sports',         emoji:'⚽', page:'events.html' },
+      { name:'Stand-Up Comedy Night',       date:'Aug 20, 2026', cat:'Entertainment',  emoji:'🎤', page:'events.html' },
+      { name:'KPOP Fest Malaysia 2026',     date:'Jul 19, 2026', cat:'Music',          emoji:'🎤', page:'events.html' },
+      { name:'GameCon KL 2026',             date:'Oct 3, 2026',  cat:'Gaming',         emoji:'🎮', page:'events.html' },
+      { name:'My Tickets',  date:'', cat:'Page', emoji:'🎫', page:'tickets.html' },
+      { name:'Dashboard',   date:'', cat:'Page', emoji:'📊', page:'dashboard.html' },
+    ];
+    const input = document.getElementById('searchInput');
+    const dropdown = document.getElementById('searchDropdown');
+    function renderResults(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) { dropdown.style.display = 'none'; return; }
+      const matches = SEARCH_EVENTS.filter(e => e.name.toLowerCase().includes(q) || e.cat.toLowerCase().includes(q));
+      if (!matches.length) {
+        dropdown.innerHTML = `<div style="padding:16px 18px;color:#9ca3af;font-size:13px;text-align:center">😕 No results for "<strong style="color:#fff">${query}</strong>"</div>`;
+        dropdown.style.display = 'block'; return;
+      }
+      dropdown.innerHTML = matches.map(e => `
+        <a href="${e.page}" style="display:flex;align-items:center;gap:12px;padding:11px 16px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.06);"
+          onmouseover="this.style.background='rgba(167,139,250,0.15)'" onmouseout="this.style.background='transparent'">
+          <div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,rgba(167,139,250,0.25),rgba(236,72,153,0.2));display:flex;align-items:center;justify-content:center;font-size:18px">${e.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:1px">${e.date ? e.date+' · ' : ''}${e.cat}</div>
+          </div>
+          <span style="font-size:11px;color:#a78bfa">→</span>
+        </a>`).join('');
+      dropdown.style.display = 'block';
+    }
+    input.addEventListener('input', () => renderResults(input.value));
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { const q = input.value.toLowerCase().trim(); const f = SEARCH_EVENTS.find(ev => ev.name.toLowerCase().includes(q) || ev.cat.toLowerCase().includes(q)); if (f) window.location.href = f.page; }
+      if (e.key === 'Escape') { dropdown.style.display = 'none'; input.blur(); }
+    });
+    input.addEventListener('focus', () => { if (input.value) renderResults(input.value); });
+    document.addEventListener('click', e => { if (!input.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none'; });
+  })();
+
+  // ── NOTIFICATION BELL ──
+  (function() {
+    const NOTIFICATIONS = [
+      { id:1, icon:'🎟', title:'New booking confirmed',  msg:'Champions League Final — 2 tickets',  time:'2 min ago',   read:false, color:'#4ade80' },
+      { id:2, icon:'❌', title:'Booking cancelled',      msg:'Tech Summit 2026 — 1 ticket',         time:'1 hour ago',  read:false, color:'#ef4444' },
+      { id:3, icon:'🎵', title:'Event reminder',         msg:'Neon Horizon Music Festival tomorrow', time:'3 hours ago', read:false, color:'#a78bfa' },
+      { id:4, icon:'💰', title:'Payment successful',     msg:'RM 300 — International Food Expo',    time:'Yesterday',   read:true,  color:'#60a5fa' },
+      { id:5, icon:'📅', title:'New event added',        msg:'Stand-Up Comedy Night — Aug 20',      time:'2 days ago',  read:true,  color:'#fb923c' },
+    ];
+    const btn = document.getElementById('notifBtn');
+    const dropdown = document.getElementById('notifDropdown');
+    const dot = document.getElementById('notifDot');
+    const list = document.getElementById('notifList');
+    const markAllBtn = document.getElementById('markAllRead');
+    function updateDot() { dot.style.display = NOTIFICATIONS.some(n => !n.read) ? 'block' : 'none'; }
+    function renderList() {
+      list.innerHTML = NOTIFICATIONS.map(n => `
+        <div data-id="${n.id}" class="notif-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);background:${n.read?'transparent':'rgba(167,139,250,0.07)'};transition:background 0.15s"
+          onmouseover="this.style.background='rgba(167,139,250,0.13)'" onmouseout="this.style.background='${n.read?'transparent':'rgba(167,139,250,0.07)'}'">
+          <div style="width:38px;height:38px;border-radius:10px;flex-shrink:0;background:${n.color}22;display:flex;align-items:center;justify-content:center;font-size:18px">${n.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:${n.read?500:700};color:#fff;line-height:1.3">${n.title}</div>
+            <div style="font-size:11.5px;color:#9ca3af;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.msg}</div>
+            <div style="font-size:10.5px;color:#6b7280;margin-top:3px">${n.time}</div>
+          </div>
+          ${!n.read?`<span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;flex-shrink:0;margin-top:4px"></span>`:''}
+        </div>`).join('');
+      list.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', () => { const n = NOTIFICATIONS.find(x => x.id === parseInt(el.dataset.id)); if (n) { n.read = true; renderList(); updateDot(); } });
+      });
+    }
+    markAllBtn.addEventListener('click', () => { NOTIFICATIONS.forEach(n => n.read = true); renderList(); updateDot(); });
+    btn.addEventListener('click', e => { e.stopPropagation(); const open = dropdown.style.display === 'block'; dropdown.style.display = open ? 'none' : 'block'; if (!open) renderList(); });
+    document.addEventListener('click', e => { if (!btn.contains(e.target)) dropdown.style.display = 'none'; });
+    updateDot();
+  })();
+</script>
+
+</body>
+</html>
