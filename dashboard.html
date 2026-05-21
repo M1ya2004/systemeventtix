@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — EventTix</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    /* Override body background for this page */
+body {
+  background-image: url('123.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+    /* ── APP SHELL: sidebar + main ── */
+    .dash-shell {
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── LEFT SIDEBAR ── */
+    .dash-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: rgba(255,20,100,0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255,255,255,0.6);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0 24px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    /* Logo area */
+    .sidebar-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    .sidebar-logo .logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 6px 20px rgba(167,139,250,0.4);
+    }
+    .sidebar-logo .logo-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-align: center;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+    .sidebar-logo .logo-name span { color: #C80965; }
+
+    /* Nav items */
+    .sidebar-nav {
+      list-style: none;
+      margin: 0; padding: 0 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .sidebar-nav a:hover {
+      background: rgba(167,139,250,0.12);
+      color: #7c3aed;
+    }
+    .sidebar-nav a.active {
+      background: linear-gradient(135deg, rgba(167,139,250,0.25), rgba(236,72,153,0.15));
+      color: #7c3aed;
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 #7c3aed;
+    }
+    .sidebar-nav .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+
+    /* Logout at bottom of sidebar */
+    .sidebar-logout {
+      padding: 0 12px;
+      margin-top: auto;
+    }
+    .sidebar-logout button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ef4444;
+      background: rgba(239,68,68,0.08);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .sidebar-logout button:hover { background: rgba(239,68,68,0.15); }
+
+    /* ── MAIN CONTENT ── */
+    .dash-main {
+      margin-left: 200px;
+      width: calc(100% - 200px);
+      overflow-x: hidden;
+      min-width: 0;
+    }
+
+    /* ── TOP BAR ── */
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 28px;
+      background: rgba(255,20,100,0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    /* Search bar */
+    .topbar-search {
+      flex: 1;
+      max-width: 320px;
+      position: relative;
+    }
+    .topbar-search input {
+      width: 100%;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 20px;
+      padding: 8px 16px 8px 36px;
+      font-size: 13.5px;
+      color: #374151;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .topbar-search input::placeholder { color: #ffffff; }
+    .topbar-search input:focus {
+      background: rgba(255,255,255,0.85);
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+    }
+    .topbar-search .search-icon {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    /* Topbar right */
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .topbar-notif {
+      position: relative;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 10px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .topbar-notif:hover { background: rgba(255,255,255,0.85); }
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 7px; height: 7px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 1.5px solid white;
+    }
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .topbar-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(167,139,250,0.35);
+    }
+    .topbar-username {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* ── PAGE BODY ── */
+    .dash-body {
+      padding: clamp(12px, 3vw, 28px);
+      flex: 1;
+    }
+
+    /* Welcome heading */
+    .dash-welcome {
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: clamp(12px, 2vw, 22px);
+    }
+    .dash-welcome span { color: #C8095C; }
+
+    /* ── STAT CARDS ── */
+    .p-stat-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(8px, 1.5vw, 16px);
+      margin-bottom: clamp(14px, 2vw, 24px);
+    }
+    @media (max-width: 900px) {
+      .p-stat-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .p-stat-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .p-stat-card {
+      background: rgba(255,20,100,0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 16px;
+      padding: clamp(14px, 2vw, 20px);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .p-stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .p-stat-icon {
+      width: clamp(36px, 4vw, 46px);
+      height: clamp(36px, 4vw, 46px);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(16px, 2vw, 20px);
+      flex-shrink: 0;
+    }
+    .p-stat-card.c1 .p-stat-icon { background: linear-gradient(135deg,#e0d7ff,#c4b5fd); }
+    .p-stat-card.c2 .p-stat-icon { background: linear-gradient(135deg,#fce7f3,#fbcfe8); }
+    .p-stat-card.c3 .p-stat-icon { background: linear-gradient(135deg,#dbeafe,#bfdbfe); }
+    .p-stat-card.c4 .p-stat-icon { background: linear-gradient(135deg,#dcfce7,#bbf7d0); }
+    .p-stat-value {
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .p-stat-label {
+      font-size: clamp(10px, 1.2vw, 12px);
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* ── MAIN GRID ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: clamp(12px, 2vw, 20px);
+      align-items: start;
+    }
+
+    /* iPad & tablet — stack right panel below */
+    @media (max-width: 1300px) {
+      .dash-grid { grid-template-columns: 1fr; }
+      .right-col { width: 100%; }
+      .charts-inner-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+
+    /* Phone */
+    @media (max-width: 768px) {
+      .charts-inner-grid { grid-template-columns: 1fr !important; }
+      .p-stat-cards { grid-template-columns: 1fr 1fr; }
+      .hero-slider { height: 200px; }
+    }
+
+    /* Small phone */
+    @media (max-width: 480px) {
+      .p-stat-cards { grid-template-columns: 1fr 1fr; }
+      .slide-title { font-size: 18px; }
+      .dash-body { padding: 12px; }
+    }
+
+    /* Glass card base */
+    .p-card {
+      background: rgba(255,20,100,0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 16px;
+      padding: clamp(14px, 2vw, 22px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .p-card-title {
+      font-size: clamp(13px, 1.4vw, 15px);
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+    .p-card-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+
+    /* Charts stacked on left */
+    .charts-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .qa-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .qa-btn.primary {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+    }
+    .qa-btn.primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .qa-btn.secondary {
+      background: rgba(255,255,255,0.7);
+      color: #374151;
+      border: 1px solid rgba(255,255,255,0.9);
+    }
+    .qa-btn.secondary:hover { background: rgba(255,255,255,0.9); }
+
+    /* Activity list */
+    .p-activity-list { list-style: none; margin: 0; padding: 0; }
+    .p-activity-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      font-size: 12.5px;
+    }
+    .p-activity-list li:last-child { border-bottom: none; }
+    .a-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .a-dot.green  { background: #4ade80; }
+    .a-dot.orange { background: #fb923c; }
+    .a-dot.blue   { background: #60a5fa; }
+    .a-info { flex: 1; min-width: 0; }
+    .a-name {
+      font-weight: 600;
+      color: #CCF1FF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+    .a-time { font-size: 11px; color: #9ca3af; }
+    .a-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .a-badge.sold      { background: rgba(74,222,128,0.15); color: #16a34a; }
+    .a-badge.pending   { background: rgba(250,204,21,0.15); color: #ca8a04; }
+    .a-badge.cancelled { background: rgba(239,68,68,0.15);  color: #dc2626; }
+
+    /* Footer */
+    .dash-footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #9ca3af;
+      padding-bottom: 20px;
+    }
+    .dash-footer strong { color: #7c3aed; }
+
+
+    .hero-slider {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(124,58,237,0.18);
+    }
+
+    /* Individual slides */
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .slide.active { opacity: 1; }
+
+    /* Fallback gradient banners when no image is supplied */
+    .slide-1 { background-image: url('1.jpg');
+                background-color: #929B92;
+                background-blend-mode: multiply; }
+    .slide-2 { background-image: url('3.jpg');
+                background-color: #929B92;
+                background-blend-mode: multiply; }
+    .slide-3 { background-image: url('4.jpg');
+                background-color: #929B92;
+                background-blend-mode: multiply; }
+    .slide-4 { background-image: url('2.jpg');
+                background-color: #929B92;
+                background-blend-mode: multiply; }
+    .slide-5 { background-image: url('5.jpg');
+                background-color: #929B92;
+                background-blend-mode: multiply; }
+
+    /* Gradient overlay so text always readable */
+    .slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(0,0,0,0.20) 0%,
+        rgba(0,0,0,0.05) 60%,
+        transparent 100%
+      );
+    }
+
+    /* Slide caption */
+    .slide-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 2;
+      padding: 28px 32px;
+    }
+    .slide-tag {
+      display: inline-block;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .slide-title {
+      font-size: clamp(18px, 3vw, 26px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.25;
+      margin-bottom: 5px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .slide-meta {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Prev / Next arrows */
+    .slider-arrow {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      z-index: 3;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    .slider-arrow:hover { background: rgba(124,58,237,0.5); }
+    .slider-arrow.prev { left: 14px; }
+    .slider-arrow.next { right: 14px; }
+
+    /* Dot indicators */
+    .slider-dots {
+      position: absolute;
+      bottom: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      gap: 6px;
+    }
+    .slider-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.45);
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      padding: 0;
+    }
+    .slider-dot.active {
+      background: #ffffff;
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    /* Mobile sidebar toggle */
+    .mob-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    /* ── SIDEBAR: hide on tablet/phone ── */
+    @media (max-width: 1024px) {
+      .dash-sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .dash-sidebar.open { transform: translateX(0); }
+      .dash-main { margin-left: 0; width: 100%; }
+      .mob-toggle { display: block; }
+    }
+    /* Hide username on small screens */
+    @media (max-width: 480px) {
+      .topbar-username { display: none; }
+      .topbar-search { max-width: 140px; }
+      .dash-topbar { padding: 12px 16px; gap: 10px; }
+    }
+
+/* ── SIDEBAR DROPDOWN ── */
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: left;
+}
+.nav-dropdown-toggle:hover { background: rgba(167,139,250,0.12); color: #7c3aed; }
+.nav-dropdown-toggle.open  { background: rgba(167,139,250,0.12); color: #7c3aed; }
+.nav-dropdown-arrow {
+  margin-left: auto;
+  font-size: 11px;
+  transition: transform 0.3s;
+  color: #9ca3af;
+}
+.nav-dropdown-toggle.open .nav-dropdown-arrow { transform: rotate(180deg); }
+.nav-submenu {
+  list-style: none;
+  margin: 2px 0 4px;
+  padding: 0 0 0 20px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease;
+}
+.nav-submenu.open { max-height: 320px; }
+.nav-submenu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-submenu a:hover { background: rgba(167,139,250,0.1); color: #7c3aed; }
+.nav-submenu .sub-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #a78bfa;
+  flex-shrink: 0;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="dash-shell">
+
+  <aside class="dash-sidebar" id="dashSidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎟</div>
+      <div class="logo-name">Event<span>Tix</span></div>
+    </div>
+
+    <!-- Nav links -->
+    <ul class="sidebar-nav">
+      <li>
+        <a href="dashboard.html" class="active">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+      </li>
+<li class="nav-dropdown">
+  <button class="nav-dropdown-toggle" id="eventsDropdownBtn">
+    <span class="nav-icon">🎪</span>
+    Events
+    <span class="nav-dropdown-arrow">▼</span>
+  </button>
+  <ul class="nav-submenu" id="eventsSubmenu">
+    <li><a href="events.html"><span class="sub-dot"></span> All Events</a></li>
+    <li><a href="events.html?cat=Music"><span class="sub-dot"></span> Music</a></li>
+    <li><a href="events.html?cat=Technology"><span class="sub-dot"></span> Technology</a></li>
+    <li><a href="events.html?cat=Sports"><span class="sub-dot"></span> Sports</a></li>
+    <li><a href="events.html?cat=Food+%26+Drink"><span class="sub-dot"></span> Food & Drink</a></li>
+    <li><a href="events.html?cat=Arts+%26+Culture"><span class="sub-dot"></span> Arts & Culture</a></li>
+    <li><a href="events.html?cat=Entertainment"><span class="sub-dot"></span> Entertainment</a></li>
+    <li><a href="events.html?cat=Gaming"><span class="sub-dot"></span> Gaming</a></li>
+  </ul>
+</li>
+      <li>
+        <a href="tickets.html">
+          <span class="nav-icon">🎫</span> My Tickets
+        </a>
+      </li>
+    </ul>
+
+    <!-- Logout -->
+    <div class="sidebar-logout">
+      <button data-logout>
+        <span>➜]</span> Logout
+      </button>
+    </div>
+
+  </aside>
+
+  <div class="dash-main">
+
+    <!-- TOP BAR -->
+    <div class="dash-topbar">
+
+      <!-- Mobile toggle -->
+      <button class="mob-toggle" id="mobToggle">☰</button>
+
+      <!-- Search -->
+      <div class="topbar-search" style="position:relative">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="search events…" autocomplete="off" />
+        <div id="searchDropdown" style="
+          display:none;
+          position:absolute;
+          top:calc(100% + 8px);
+          left:0; right:0;
+          background:rgba(30,10,40,0.97);
+          backdrop-filter:blur(20px);
+          border:1px solid rgba(255,255,255,0.2);
+          border-radius:14px;
+          overflow:hidden;
+          box-shadow:0 12px 40px rgba(0,0,0,0.4);
+          z-index:999;
+          max-height:320px;
+          overflow-y:auto;
+        "></div>
+      </div>
+
+      <!-- Right: notification + user -->
+      <div class="topbar-right">
+        <div class="topbar-notif" id="notifBtn" style="position:relative;cursor:pointer">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+
+          <!-- Notification Dropdown -->
+          <div id="notifDropdown" style="
+            display:none;
+            position:absolute;
+            top:calc(100% + 10px);
+            right:0;
+            width:320px;
+            background:rgba(30,10,40,0.97);
+            backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,0.2);
+            border-radius:16px;
+            box-shadow:0 16px 48px rgba(0,0,0,0.5);
+            z-index:9999;
+            overflow:hidden;
+          ">
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08)">
+              <span style="font-size:14px;font-weight:700;color:#fff">🔔 Notifications</span>
+              <button id="markAllRead" style="font-size:11px;color:#a78bfa;background:none;border:none;cursor:pointer;font-family:inherit">Mark all read</button>
+            </div>
+            <!-- List -->
+            <div id="notifList" style="max-height:280px;overflow-y:auto"></div>
+            <!-- Footer -->
+            <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.08);text-align:center">
+              <a href="tickets.html" style="font-size:12px;color:#a78bfa;text-decoration:none">View all activity →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-user">
+          <div class="topbar-avatar">A</div>
+          <span class="topbar-username" id="navUsername">Admin</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PAGE BODY -->
+    <div class="dash-body">
+
+      <!-- Welcome -->
+      <div class="dash-welcome">Welcome <span>Admin!</span></div>
+
+      <div class="hero-slider" id="heroSlider">
+
+        <!-- Slide 1 -->
+        <div class="slide slide-1 active">
+          <div class="slide-caption">
+            <span class="slide-tag">🎵 Music</span>
+            <div class="slide-title">Neon Horizon Music Festival</div>
+            <div class="slide-meta">
+              <span>📅 Aug 15, 2026</span>
+              <span>📍 Axiata Arena, KL</span>
+              <span>🎟 From RM 150</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide slide-2">
+          <div class="slide-caption">
+            <span class="slide-tag">💻 Technology</span>
+            <div class="slide-title">Tech Summit 2026</div>
+            <div class="slide-meta">
+              <span>📅 Sep 3, 2026</span>
+              <span>📍 KL Convention Centre</span>
+              <span>🎟 From RM 280</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide slide-3">
+          <div class="slide-caption">
+            <span class="slide-tag">⚽ Sports</span>
+            <div class="slide-title">Champions League Final</div>
+            <div class="slide-meta">
+              <span>📅 Nov 22, 2026</span>
+              <span>📍 Bukit Jalil National Stadium</span>
+              <span>🎟 From RM 350</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide slide-4">
+          <div class="slide-caption">
+            <span class="slide-tag">🍜 Food & Drink</span>
+            <div class="slide-title">International Food Expo</div>
+            <div class="slide-meta">
+              <span>📅 Aug 28, 2026</span>
+              <span>📍 Pavilion KL, Bukit Bintang</span>
+              <span>🎟 From RM 45</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide slide-5">
+          <div class="slide-caption">
+            <span class="slide-tag">🎤 Entertainment</span>
+            <div class="slide-title">Stand-Up Comedy Night</div>
+            <div class="slide-meta">
+              <span>📅 Aug 20, 2026</span>
+              <span>📍 The Bee, Publika</span>
+              <span>🎟 From RM 80</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide slide-6">
+          <div class="slide-caption">
+            <span class="slide-tag">🎤 Music</span>
+            <div class="slide-title">KPOP Fest Malaysia 2026</div>
+            <div class="slide-meta">
+              <span>📅 Jul 19, 2026</span>
+              <span>📍 Stadium Merdeka, KL</span>
+              <span>🎟 From RM 199</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide slide-7">
+          <div class="slide-caption">
+            <span class="slide-tag">🎮 Gaming</span>
+            <div class="slide-title">GameCon KL 2026</div>
+            <div class="slide-meta">
+              <span>📅 Oct 3, 2026</span>
+              <span>📍 MITEC, Kuala Lumpur</span>
+              <span>🎟 From RM 60</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Arrows -->
+        <button class="slider-arrow prev" id="sliderPrev">&#8249;</button>
+        <button class="slider-arrow next" id="sliderNext">&#8250;</button>
+
+        <!-- Dots -->
+        <div class="slider-dots" id="sliderDots"></div>
+
+      </div><!-- /hero-slider -->
+
+      <!-- STAT CARDS -->
+      <div class="p-stat-cards">
+
+        <div class="p-stat-card c1">
+          <div class="p-stat-icon">🎪</div>
+          <div>
+            <div class="p-stat-value" id="statTotalEvents">—</div>
+            <div class="p-stat-label">Total Events</div>
+          </div>
+        </div>
+
+        <div class="p-stat-card c2">
+          <div class="p-stat-icon">🎫</div>
+          <div>
+            <div class="p-stat-value" id="statTicketsSold">—</div>
+            <div class="p-stat-label">Tickets Sold</div>
+          </div>
+        </div>
+
+        <div class="p-stat-card c3">
+          <div class="p-stat-icon">📅</div>
+          <div>
+            <div class="p-stat-value" id="statUpcoming">—</div>
+            <div class="p-stat-label">Upcoming Events</div>
+          </div>
+        </div>
+
+        <div class="p-stat-card c4">
+          <div class="p-stat-icon">💰</div>
+          <div>
+            <div class="p-stat-value" id="statRevenue">—</div>
+            <div class="p-stat-label">Total Revenue</div>
+          </div>
+        </div>
+
+      </div><!-- /stat-cards -->
+
+      <!-- MAIN GRID -->
+      <div class="dash-grid">
+
+        <!-- LEFT: Charts -->
+        <div class="charts-col">
+
+          <!-- Bar chart -->
+          <div class="p-card">
+            <div class="p-card-title">🎟 Ticket Sales by Event</div>
+            <div class="p-card-sub">Tickets sold per event</div>
+            <div style="height:240px;position:relative">
+              <canvas id="salesChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Doughnut + Pie side by side -->
+          <div class="charts-inner-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+
+            <div class="p-card">
+              <div class="p-card-title">🍩 Events by Category</div>
+              <div class="p-card-sub">Category distribution</div>
+              <div style="height:260px;position:relative">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+
+            <div class="p-card">
+              <div class="p-card-title">🥧 Revenue by Category</div>
+              <div class="p-card-sub">Revenue share per category</div>
+              <div style="height:260px;position:relative">
+                <canvas id="pieChart"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Line chart + Revenue Bar chart side by side (sama size macam donut+pie) -->
+          <div class="charts-inner-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+
+            <div class="p-card">
+              <div class="p-card-title">📈 Monthly Ticket Sales</div>
+              <div class="p-card-sub">Sales trend over 6 months</div>
+              <div style="height:320px;position:relative">
+                <canvas id="lineChart"></canvas>
+              </div>
+            </div>
+
+            <div class="p-card">
+              <div class="p-card-title">📊 Revenue vs Target</div>
+              <div class="p-card-sub">Monthly revenue vs target</div>
+              <div style="height:320px;position:relative">
+                <canvas id="revenueBarChart"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+        </div><!-- /charts-col -->
+
+        <!-- RIGHT PANEL -->
+        <div class="right-col">
+
+          <!-- Quick Actions -->
+          <div class="p-card">
+            <div class="p-card-title">Quick Actions</div>
+            <div class="p-card-sub">Navigate to key sections</div>
+            <div class="quick-actions">
+              <a href="events.html" class="qa-btn primary">🗓 &nbsp;Browse Events</a>
+              <a href="tickets.html" class="qa-btn secondary">🎫 &nbsp;My Tickets</a>
+            </div>
+          </div>
+
+          <!-- Summary mini-stats -->
+          <div class="p-card">
+            <div class="p-card-title">Booking Overview</div>
+            <div class="p-card-sub">Your ticket statistics</div>
+            <div style="display:flex;flex-direction:column;gap:12px" id="bookingOverview">
+              <!-- Populated by JS -->
+              <div style="color:#9ca3af;font-size:12px">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Event list mini -->
+          <div class="p-card">
+            <div class="p-card-title">Upcoming Events</div>
+            <div class="p-card-sub">Next events coming up</div>
+            <div id="upcomingList" style="display:flex;flex-direction:column;gap:10px">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="p-card">
+            <div class="p-card-title">🕐 Recent Activity</div>
+            <div class="p-card-sub">Latest bookings</div>
+            <ul class="p-activity-list" id="activityList">
+              <li style="color:#9ca3af;font-size:12px">Loading…</li>
+            </ul>
+          </div>
+
+        </div><!-- /right-col -->
+
+      </div><!-- /dash-grid -->
+
+      <!-- Footer -->
+      <div class="dash-footer">
+        <strong>EventTix</strong> — Online Event Ticketing System &nbsp;·&nbsp;
+        NURSYAZA AMIRA BINTI AHMAD GHAZALI &nbsp;·&nbsp; IMS566 Advanced Web Design &nbsp;·&nbsp; 2026
+      </div>
+
+    </div><!-- /dash-body -->
+  </div><!-- /dash-main -->
+</div><!-- /dash-shell -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<!-- App JS -->
+<script src="script.js"></script>
+<script>
+
+  // ── HERO SLIDESHOW ──
+  (function () {
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('sliderDots');
+    let current = 0;
+    let timer;
+
+    // Build dots
+    slides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'slider-dot' + (i === 0 ? ' active' : '');
+      d.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(d);
+    });
+
+    function goTo(n) {
+      slides[current].classList.remove('active');
+      dotsContainer.children[current].classList.remove('active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dotsContainer.children[current].classList.add('active');
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    // Auto-advance every 4 s
+    function startTimer() { timer = setInterval(next, 4000); }
+    function resetTimer()  { clearInterval(timer); startTimer(); }
+
+    document.getElementById('sliderNext').addEventListener('click', () => { next(); resetTimer(); });
+    document.getElementById('sliderPrev').addEventListener('click', () => { prev(); resetTimer(); });
+
+    // Pause on hover
+    document.getElementById('heroSlider').addEventListener('mouseenter', () => clearInterval(timer));
+    document.getElementById('heroSlider').addEventListener('mouseleave', startTimer);
+
+    startTimer();
+  })();
+
+  // Mobile sidebar toggle
+  document.getElementById('mobToggle').addEventListener('click', () => {
+    document.getElementById('dashSidebar').classList.toggle('open');
+  });
+
+// ── EVENTS DROPDOWN ──
+(function() {
+  const btn     = document.getElementById('eventsDropdownBtn');
+  const submenu = document.getElementById('eventsSubmenu');
+  if (!btn || !submenu) return;
+  btn.addEventListener('click', function() {
+    btn.classList.toggle('open');
+    submenu.classList.toggle('open');
+  });
+})();
+
+  // ── LINE CHART: Monthly Ticket Sales ──
+  (function() {
+    const ctx = document.getElementById('lineChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+        datasets: [{
+          label: 'Tickets Sold',
+          data: [120, 190, 150, 280, 320, 410],
+          borderColor: '#a78bfa',
+          backgroundColor: 'rgba(167,139,250,0.15)',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#a78bfa',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4
+        }, {
+          label: 'Last Year',
+          data: [80, 130, 110, 200, 240, 310],
+          borderColor: '#ec4899',
+          backgroundColor: 'rgba(236,72,153,0.08)',
+          borderWidth: 2,
+          pointBackgroundColor: '#ec4899',
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: true,
+          tension: 0.4,
+          borderDash: [5,4]
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#ffffff', font: { size: 11 }, boxWidth: 14 } }
+        },
+        scales: {
+          x: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.07)' } }
+        }
+      }
+    });
+  })();
+
+  // ── PIE CHART: Revenue by Category ──
+  (function() {
+    const ctx = document.getElementById('pieChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Music','Technology','Sports','Food & Drink','Arts','Entertainment'],
+        datasets: [{
+          data: [35, 22, 18, 10, 8, 7],
+          backgroundColor: ['#a78bfa','#ec4899','#60a5fa','#4ade80','#fb923c','#facc15'],
+          borderColor: 'rgba(255,255,255,0.15)',
+          borderWidth: 2,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#ffffff', font: { size: 10 }, boxWidth: 12, padding: 10 }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.parsed}%`
+            }
+          }
+        }
+      }
+    });
+  })();
+
+  // ── REVENUE BAR CHART: Monthly Revenue vs Target ──
+  (function() {
+    const ctx = document.getElementById('revenueBarChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+        datasets: [{
+          label: 'Revenue (RM)',
+          data: [8200, 12400, 9800, 18600, 22300, 28900],
+          backgroundColor: 'rgba(167,139,250,0.75)',
+          borderColor: '#a78bfa',
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false
+        }, {
+          label: 'Target (RM)',
+          data: [10000,14000,12000,20000,25000,30000],
+          backgroundColor: 'rgba(236,72,153,0.3)',
+          borderColor: '#ec4899',
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#ffffff', font: { size: 11 }, boxWidth: 14 } }
+        },
+        scales: {
+          x: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: {
+            ticks: {
+              color: '#9ca3af', font: { size: 10 },
+              callback: v => 'RM ' + (v/1000).toFixed(0) + 'k'
+            },
+            grid: { color: 'rgba(255,255,255,0.07)' }
+          }
+        }
+      }
+    });
+  })();
+  document.addEventListener('DOMContentLoaded', () => {
+    // Booking overview
+    setTimeout(() => {
+      const tickets = JSON.parse(localStorage.getItem('ets_tickets') || '[]');
+      const confirmed = tickets.filter(t => t.status === 'Confirmed').length;
+      const cancelled = tickets.filter(t => t.status === 'Cancelled').length;
+      const spent = tickets.filter(t=>t.status==='Confirmed').reduce((s,t)=>s+(t.price||0),0);
+
+      document.getElementById('bookingOverview').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(167,139,250,0.1);border-radius:8px">
+          <span style="font-size:12.5px;color:#FFFFFF;font-weight:500">✅ Confirmed</span>
+          <span style="font-size:16px;font-weight:800;color:#7c3aed">${confirmed}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(239,68,68,0.07);border-radius:8px">
+          <span style="font-size:12.5px;color:#FFFFFF;font-weight:500">❌ Cancelled</span>
+          <span style="font-size:16px;font-weight:800;color:#ef4444">${cancelled}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(74,222,128,0.1);border-radius:8px">
+          <span style="font-size:12.5px;color:#FFFFFF;font-weight:500">💰 Spent</span>
+          <span style="font-size:14px;font-weight:800;color:#16a34a">RM ${spent.toLocaleString()}</span>
+        </div>
+      `;
+
+      // Upcoming events (next 3)
+      const EVENTS = [
+        { name:'Neon Horizon Music Festival', displayDate:'Aug 15, 2026', emoji:'🎵' },
+        { name:'Tech Summit 2026',            displayDate:'Sep 3, 2026',  emoji:'💻' },
+        { name:'International Food Expo',     displayDate:'Aug 28, 2026', emoji:'🍜' },
+        { name:'National Art Exhibition',     displayDate:'Oct 10, 2026', emoji:'🎨' },
+        { name:'Champions League Final',      displayDate:'Nov 22, 2026', emoji:'⚽' },
+        { name:'Stand-Up Comedy Night',       displayDate:'Aug 20, 2026', emoji:'🎤' },
+        { name:'KPOP Fest Malaysia 2026',     displayDate:'Jul 19, 2026', emoji:'🎤' },
+        { name:'GameCon KL 2026',             displayDate:'Oct 3, 2026',  emoji:'🎮' },
+      ];
+      document.getElementById('upcomingList').innerHTML = EVENTS.slice(0,4).map(e=>`
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(236,72,153,0.15));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${e.emoji}</div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#CCF1FF;line-height:1.3">${e.name}</div>
+            <div style="font-size:11px;color:#9ca3af">${e.displayDate}</div>
+          </div>
+        </div>
+      `).join('');
+    }, 300);
+  });
+  // ── SEARCH FUNCTIONALITY ──
+  (function() {
+    const SEARCH_EVENTS = [
+      { name:'Neon Horizon Music Festival', date:'Aug 15, 2026', cat:'Music',         emoji:'🎵', page:'events.html' },
+      { name:'Tech Summit 2026',            date:'Sep 3, 2026',  cat:'Technology',    emoji:'💻', page:'events.html' },
+      { name:'International Food Expo',     date:'Aug 28, 2026', cat:'Food & Drink',  emoji:'🍜', page:'events.html' },
+      { name:'National Art Exhibition',     date:'Oct 10, 2026', cat:'Arts & Culture',emoji:'🎨', page:'events.html' },
+      { name:'Champions League Final',      date:'Nov 22, 2026', cat:'Sports',        emoji:'⚽', page:'events.html' },
+      { name:'Stand-Up Comedy Night',       date:'Aug 20, 2026', cat:'Entertainment', emoji:'🎤', page:'events.html' },
+      { name:'KPOP Fest Malaysia 2026',     date:'Jul 19, 2026', cat:'Music',         emoji:'🎤', page:'events.html' },
+      { name:'GameCon KL 2026',             date:'Oct 3, 2026',  cat:'Gaming',        emoji:'🎮', page:'events.html' },
+      { name:'My Tickets',                  date:'',             cat:'Page',          emoji:'🎫', page:'tickets.html' },
+      { name:'Dashboard',                   date:'',             cat:'Page',          emoji:'📊', page:'dashboard.html' },
+    ];
+
+    const input    = document.getElementById('searchInput');
+    const dropdown = document.getElementById('searchDropdown');
+
+    function renderResults(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) { dropdown.style.display = 'none'; return; }
+
+      const matches = SEARCH_EVENTS.filter(e =>
+        e.name.toLowerCase().includes(q) ||
+        e.cat.toLowerCase().includes(q)
+      );
+
+      if (matches.length === 0) {
+        dropdown.innerHTML = `
+          <div style="padding:16px 18px;color:#9ca3af;font-size:13px;text-align:center">
+            😕 No results for "<strong style="color:#fff">${query}</strong>"
+          </div>`;
+        dropdown.style.display = 'block';
+        return;
+      }
+
+      dropdown.innerHTML = matches.map(e => `
+        <a href="${e.page}" style="
+          display:flex;align-items:center;gap:12px;
+          padding:11px 16px;
+          text-decoration:none;
+          transition:background 0.15s;
+          border-bottom:1px solid rgba(255,255,255,0.06);
+        "
+        onmouseover="this.style.background='rgba(167,139,250,0.15)'"
+        onmouseout="this.style.background='transparent'">
+          <div style="
+            width:36px;height:36px;border-radius:10px;flex-shrink:0;
+            background:linear-gradient(135deg,rgba(167,139,250,0.25),rgba(236,72,153,0.2));
+            display:flex;align-items:center;justify-content:center;font-size:18px;
+          ">${e.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:1px">${e.date ? e.date + ' · ' : ''}${e.cat}</div>
+          </div>
+          <span style="font-size:11px;color:#a78bfa;flex-shrink:0">→</span>
+        </a>
+      `).join('');
+
+      dropdown.style.display = 'block';
+    }
+
+    input.addEventListener('input', () => renderResults(input.value));
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const q = input.value.toLowerCase().trim();
+        const first = SEARCH_EVENTS.find(ev =>
+          ev.name.toLowerCase().includes(q) || ev.cat.toLowerCase().includes(q)
+        );
+        if (first) window.location.href = first.page;
+      }
+      if (e.key === 'Escape') { dropdown.style.display = 'none'; input.blur(); }
+    });
+
+    document.addEventListener('click', e => {
+      if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    input.addEventListener('focus', () => { if (input.value) renderResults(input.value); });
+  })();
+
+  // ── NOTIFICATION BELL ──
+  (function() {
+    const NOTIFICATIONS = [
+      { id:1, icon:'🎟', title:'New booking confirmed',  msg:'Champions League Final — 2 tickets',  time:'2 min ago',   read:false, color:'#4ade80' },
+      { id:2, icon:'❌', title:'Booking cancelled',      msg:'Tech Summit 2026 — 1 ticket',         time:'1 hour ago',  read:false, color:'#ef4444' },
+      { id:3, icon:'🎵', title:'Event reminder',         msg:'Neon Horizon Music Festival tomorrow', time:'3 hours ago', read:false, color:'#a78bfa' },
+      { id:4, icon:'💰', title:'Payment successful',     msg:'RM 300 — International Food Expo',    time:'Yesterday',   read:true,  color:'#60a5fa' },
+      { id:5, icon:'📅', title:'New event added',        msg:'Stand-Up Comedy Night — Aug 20',      time:'2 days ago',  read:true,  color:'#fb923c' },
+    ];
+
+    const btn        = document.getElementById('notifBtn');
+    const dropdown   = document.getElementById('notifDropdown');
+    const dot        = document.getElementById('notifDot');
+    const list       = document.getElementById('notifList');
+    const markAllBtn = document.getElementById('markAllRead');
+
+    function updateDot() {
+      dot.style.display = NOTIFICATIONS.some(n => !n.read) ? 'block' : 'none';
+    }
+
+    function renderList() {
+      list.innerHTML = NOTIFICATIONS.map(n => `
+        <div data-id="${n.id}" class="notif-item" style="
+          display:flex;align-items:flex-start;gap:12px;
+          padding:12px 16px;cursor:pointer;
+          border-bottom:1px solid rgba(255,255,255,0.05);
+          background:${n.read ? 'transparent' : 'rgba(167,139,250,0.07)'};
+          transition:background 0.15s;
+        "
+        onmouseover="this.style.background='rgba(167,139,250,0.13)'"
+        onmouseout="this.style.background='${n.read ? 'transparent' : 'rgba(167,139,250,0.07)'}'">
+          <div style="
+            width:38px;height:38px;border-radius:10px;flex-shrink:0;
+            background:${n.color}22;
+            display:flex;align-items:center;justify-content:center;font-size:18px;
+          ">${n.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:${n.read ? 500 : 700};color:#fff;line-height:1.3">${n.title}</div>
+            <div style="font-size:11.5px;color:#9ca3af;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.msg}</div>
+            <div style="font-size:10.5px;color:#6b7280;margin-top:3px">${n.time}</div>
+          </div>
+          ${!n.read ? `<span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;flex-shrink:0;margin-top:4px"></span>` : ''}
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const notif = NOTIFICATIONS.find(n => n.id === parseInt(el.dataset.id));
+          if (notif) { notif.read = true; renderList(); updateDot(); }
+        });
+      });
+    }
+
+    markAllBtn.addEventListener('click', () => {
+      NOTIFICATIONS.forEach(n => n.read = true);
+      renderList(); updateDot();
+    });
+
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = dropdown.style.display === 'block';
+      dropdown.style.display = isOpen ? 'none' : 'block';
+      if (!isOpen) renderList();
+    });
+
+    document.addEventListener('click', e => {
+      if (!btn.contains(e.target)) dropdown.style.display = 'none';
+    });
+
+    updateDot();
+  })();
+
+</script>
+
+</body>
+</html>
